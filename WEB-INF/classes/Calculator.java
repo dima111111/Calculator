@@ -1,22 +1,29 @@
 import java.io.*;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * Calculator --- servlet to implement calculator.
+ * @author    Dmitry Vinogradov
+ */
 public class Calculator extends HttpServlet {
 
-    private static String currentAction = "";
-    private static String actionString = "";
-    private static double firstNumber = 0;
-    private static double secondNumber = 0;
-    private static double result = 0;
-    private static boolean isResultExist = true;
-    private static boolean isAction = false;
+    private static String currentAction = ""; // contains current user action (+, -, *, /)
+    private static String screenAction = ""; // action screen
+    private static double firstNumber = 0; // contains first number of calculations
+    private static double secondNumber = 0; // contains second number of calculations
+    private static double result = 0; // result screen
+    private static boolean isResultExist = true; // check if action is done
+    private static boolean isAction = false; // check user request (num or action)
 
+
+    /**
+     * Return calculator html.
+     * @param request HttpServletRequest containing request params
+     * @return String.
+     */
     protected String getHtml (HttpServletRequest request) {
         StringBuilder str = new StringBuilder();
         str.append("    <head>\n");
@@ -27,7 +34,7 @@ public class Calculator extends HttpServlet {
         str.append("        <table class=\"calculator_table\">\n");
         str.append("            <form method=\"POST\">\n");
         str.append("            <tr align=\"center\">\n");
-        str.append("                <td colspan=\"4\"><input class=\"screen\" type=\"text\" name='actionString' value=\""+ actionString + "\"></td>\n");
+        str.append("                <td colspan=\"4\"><input class=\"screen\" type=\"text\" name='actionString' value=\""+ screenAction + "\"></td>\n");
         str.append("            </tr>\n");
         str.append("            <tr align=\"center\">\n");
         str.append("                <td colspan=\"4\"><input class=\"screen\" type=\"text\" name='result' value=\""+ result + "\" readonly></td>\n");
@@ -62,6 +69,11 @@ public class Calculator extends HttpServlet {
         return str.toString();
     }
 
+    /**
+     * Process user request and print html.
+     * @param request HttpServletRequest containing request params
+     * @param response HttpServletResponse containing response
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -74,7 +86,11 @@ public class Calculator extends HttpServlet {
         }
     }
 
-
+    /**
+     * Clear calculator variables and return calculator page.
+     * @param request HttpServletRequest containing request params
+     * @param request HttpServletResponse containing response
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -82,8 +98,11 @@ public class Calculator extends HttpServlet {
         processRequest(request, response);
     }
 
+    /**
+     * Clear all variables.
+     */
     private void clearVars(){
-        actionString = "";
+        screenAction = "";
         result = 0;
         currentAction = "";
         firstNumber = 0;
@@ -91,14 +110,23 @@ public class Calculator extends HttpServlet {
         isResultExist = false;
     }
 
+    /**
+     * Process user request (POST) and return calculator page.
+     * @param request HttpServletRequest containing request params
+     * @param response HttpServletResponse containing response
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         setCurrentParametrs(request);
-        changeActionString(request);
+        changeScreen(request);
         processRequest(request, response);
     }
 
+    /**
+     * Setting current action, numbers by request parameters.
+     * @param request HttpServletRequest containing request params
+     */
     private void setCurrentParametrs(HttpServletRequest request){
         if (request.getParameter("action") != null) {
             currentAction = request.getParameter("action");
@@ -122,7 +150,11 @@ public class Calculator extends HttpServlet {
         }
     }
 
-    private void changeActionString(HttpServletRequest request){
+    /**
+     * Change action screen and result screen.
+     * @param request HttpServletRequest containing request params
+     */
+    private void changeScreen(HttpServletRequest request){
         if (isAction) {
             switch(currentAction)
             {
@@ -130,21 +162,21 @@ public class Calculator extends HttpServlet {
                     clearVars();
                     break;
                 case "=":
-                    actionString = "";
+                    screenAction = "";
                     break;
                 default:
                     if (isResultExist) {
                         firstNumber = result;
-                        actionString = firstNumber + currentAction;
+                        screenAction = firstNumber + currentAction;
                         secondNumber = 0;
                         isResultExist = false;
                     } else {
-                        actionString += currentAction;
+                        screenAction += currentAction;
                     }
                     break;
             }
         } else {
-            if (actionString.equals("") || secondNumber == 0.0)
+            if (screenAction.equals("") || secondNumber == 0.0)
             {
                 result = firstNumber;
             }
@@ -152,26 +184,25 @@ public class Calculator extends HttpServlet {
             {
                 case "+":
                     result = firstNumber + secondNumber;
-                    actionString = firstNumber + "+" + secondNumber;
+                    screenAction = firstNumber + "+" + secondNumber;
                     isResultExist = true;
                     break;
                 case "-":
                     result = firstNumber - secondNumber;
-                    actionString = firstNumber + "-" + secondNumber;
+                    screenAction = firstNumber + "-" + secondNumber;
                     isResultExist = true;
                     break;
                 case "/":
                     result = firstNumber / secondNumber;
-                    actionString = firstNumber + "/" + secondNumber;
+                    screenAction = firstNumber + "/" + secondNumber;
                     isResultExist = true;
                     break;
                 case "*":
                     result = firstNumber * secondNumber;
-                    actionString = firstNumber + "*" + secondNumber;
+                    screenAction = firstNumber + "*" + secondNumber;
                     isResultExist = true;
                     break;
             }
         }
     }
-
 }
