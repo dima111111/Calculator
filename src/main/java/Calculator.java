@@ -1,8 +1,12 @@
 import java.io.*;
+import java.util.Map;
+import java.util.LinkedHashMap;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.RequestDispatcher;
+import com.google.gson.*;
 
 /**
  * Calculator --- servlet to implement calculator.
@@ -18,88 +22,53 @@ public class Calculator extends HttpServlet {
     private static boolean isResultExist = true; // check if action is done
     private static boolean isAction = false; // check user request (num or action)
 
-
     /**
-     * Return calculator html.
+     * Redirect servlet request to jsp page.
      * @param request HttpServletRequest containing request params
-     * @return String.
+     * @param request HttpServletResponse containing response
+     * @return void.
      */
-    protected String getHtml (HttpServletRequest request) {
-        StringBuilder str = new StringBuilder();
-        str.append("    <head>\n");
-        str.append("        <title>Calculator</title>\n");
-        str.append("    </head>\n");
-        str.append("    <body>\n");
-        str.append("        <h1>Calculator</h1>\n");
-        str.append("        <table class=\"calculator_table\">\n");
-        str.append("            <form method=\"POST\">\n");
-        str.append("            <tr align=\"center\">\n");
-        str.append("                <td colspan=\"4\"><input class=\"screen\" type=\"text\" name='actionString' value=\""+ screenAction + "\"></td>\n");
-        str.append("            </tr>\n");
-        str.append("            <tr align=\"center\">\n");
-        str.append("                <td colspan=\"4\"><input class=\"screen\" type=\"text\" name='result' value=\""+ result + "\" readonly></td>\n");
-        str.append("            </tr>\n");
-        str.append("            <tr align=\"center\">\n");
-        str.append("                <td><input class=\"key\" type=\"submit\" value=\"7\" name=\"num\"></td>\n");
-        str.append("                <td><input class=\"key\" type=\"submit\" value=\"8\" name=\"num\"></td>\n");
-        str.append("                <td><input class=\"key\" type=\"submit\" value=\"9\" name=\"num\"></td>\n");
-        str.append("                <td><input class=\"key\" type=\"submit\" value=\"/\" name=\"action\"></td>\n");
-        str.append("            </tr>\n");
-        str.append("            <tr align=\"center\">\n");
-        str.append("                <td><input class=\"key\" type=\"submit\" value=\"4\" name=\"num\"></td>\n");
-        str.append("                <td><input class=\"key\" type=\"submit\" value=\"5\" name=\"num\"></td>\n");
-        str.append("                <td><input class=\"key\" type=\"submit\" value=\"6\" name=\"num\"></td>\n");
-        str.append("                <td><input class=\"key\" type=\"submit\" value=\"*\" name=\"action\"></td>\n");
-        str.append("            </tr>\n");
-        str.append("            <tr align=\"center\">\n");
-        str.append("                <td><input class=\"key\" type=\"submit\" value=\"1\" name=\"num\"></td>\n");
-        str.append("                <td><input class=\"key\" type=\"submit\" value=\"2\" name=\"num\"></td>\n");
-        str.append("                <td><input class=\"key\" type=\"submit\" value=\"3\" name=\"num\"></td>\n");
-        str.append("                <td><input class=\"key\" type=\"submit\" value=\"-\" name=\"action\"></td>\n");
-        str.append("            </tr>\n");
-        str.append("            <tr align=\"center\">\n");
-        str.append("                <td><input class=\"key\" type=\"submit\" value=\"C\" name=\"action\"></td>\n");
-        str.append("                <td><input class=\"key\" type=\"submit\" value=\"0\" name=\"num\"></td>\n");
-        str.append("                <td><input class=\"key\" type=\"submit\" value=\"=\" name=\"action\"></td>\n");
-        str.append("                <td><input class=\"key\" type=\"submit\" value=\"+\" name=\"action\"></td>\n");
-        str.append("            </tr>\n");
-        str.append("            </form>\n");
-        str.append("        </table>\n");
-        str.append("    </body>");
-        return str.toString();
+    protected void processRequestGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        RequestDispatcher dispatcher = request.getServletContext().getRequestDispatcher("/WEB-INF/index.jsp");
+        dispatcher.forward(request, response);
     }
 
     /**
-     * Process user request and print html.
+     * Process user ajax request and return json.
      * @param request HttpServletRequest containing request params
-     * @param response HttpServletResponse containing response
+     * @param request HttpServletResponse containing response
+     * @return void.
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    protected void processRequestPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        String html = getHtml(request);
-        PrintWriter out = response.getWriter();
-        try {
-            out.println(html);
-        } finally {
-            out.close();
-        }
+        Map<String, String> options = new LinkedHashMap<>();
+        options.put("screen", screenAction);
+        options.put("result", String.valueOf(result));
+        String json = new Gson().toJson(options);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(json);
     }
 
     /**
      * Clear calculator variables and return calculator page.
      * @param request HttpServletRequest containing request params
      * @param request HttpServletResponse containing response
+     * @return void.
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         clearVars();
-        processRequest(request, response);
+        processRequestGet(request, response);
     }
 
     /**
      * Clear all variables.
+     * @return void.
      */
     private void clearVars(){
         screenAction = "";
@@ -113,19 +82,21 @@ public class Calculator extends HttpServlet {
     /**
      * Process user request (POST) and return calculator page.
      * @param request HttpServletRequest containing request params
-     * @param response HttpServletResponse containing response
+     * @param request HttpServletResponse containing response
+     * @return void.
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         setCurrentParametrs(request);
         changeScreen(request);
-        processRequest(request, response);
+        processRequestPost(request, response);
     }
 
     /**
      * Setting current action, numbers by request parameters.
      * @param request HttpServletRequest containing request params
+     * @return void.
      */
     private void setCurrentParametrs(HttpServletRequest request){
         if (request.getParameter("action") != null) {
@@ -153,6 +124,7 @@ public class Calculator extends HttpServlet {
     /**
      * Change action screen and result screen.
      * @param request HttpServletRequest containing request params
+     * @return void.
      */
     private void changeScreen(HttpServletRequest request){
         if (isAction) {
