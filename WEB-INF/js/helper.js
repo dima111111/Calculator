@@ -16,7 +16,6 @@ function getData (button) {
     let data;
     let type = button.attr('name');
     let value = button.attr('value');
-    console.log(type);
     switch (type){
         case 'num':
             data = { num: value};
