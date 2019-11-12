@@ -5,7 +5,6 @@ $(document).ready(function() {
             type: 'POST',
             data : getData($(this)),
             success : function(response) {
-                console.log(response);
                 $('[name="actionString"]').val(response.screen);
                 $('[name="result"]').val(response.result);
             }

@@ -4,7 +4,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Calculator</title>
-        <script src="http://code.jquery.com/jquery-2.2.4.js" type="text/javascript"></script>
+        <script type="text/javascript"><jsp:directive.include file="/js/jquery-2.2.4.js" /></script>
         <script type="text/javascript"><jsp:directive.include file="/js/helper.js" /></script>
         <style><jsp:directive.include file="/css/calculator.css" /></style>
     </head>

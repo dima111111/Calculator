@@ -12,7 +12,7 @@
 
     <servlet>
         <servlet-name>calculator</servlet-name>
-        <servlet-class>Calculator</servlet-class>
+        <servlet-class>edu.netcracker.CalculatorServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
