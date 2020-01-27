@@ -1,7 +1,8 @@
 $(document).ready(function() {
     $('.key').click(function() {
+        console.log('hello');
         $.ajax({
-            url : 'Calculator',
+            url : '/Calculator/',
             type: 'POST',
             data : getData($(this)),
             success : function(response) {
