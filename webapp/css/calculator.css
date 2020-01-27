@@ -1,6 +1,5 @@
 .calculator_table {
-    border: "1";
-    width: "6040"
+	margin: auto;
 }
 .key {
     padding:5px 15px; 
